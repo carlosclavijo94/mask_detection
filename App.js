@@ -125,14 +125,32 @@ function CameraScreen() {
 
         for (let i = 0; i < faces.length; i++) {
 
+          let color = "red"
+
+          //Deteccion de mascarilla
+
+
+          let width = parseInt((faces[i].bottomRight[1] - faces[i].topLeft[1]))
+          let height = parseInt((faces[i].bottomRight[0] - faces[i].topLeft[0]))
+          let faceTensor=nextImageTensor.slice([parseInt(faces[i].topLeft[1]),
+          parseInt(faces[i].topLeft[0]),0],[width,height,3])
+          faceTensor = faceTensor.resizeBilinear([224,224]).reshape([1,224,224,3])
+
+          let result = await maskDetector.current.predict(faceTensor).data()
+
+          console.log('faceTensor', faceTensor)
+          console.log('Result0',result[0])
+          console.log('Result1',result[1])
           // Render a rectangle over each detected face.
-          //ctx.fillRect(start[0], start[1], size[0], size[1]);
-          
-          tempArray.push({
-            id:i,
-            location:faces[i],
-            color:"green"
-          })
+          if(result[0]>result[1]){
+            //color = "green"
+          }
+
+            tempArray.push({
+              id:i,
+              location:faces[i],
+              color:color
+            })
 
           setFaces(tempArray)
         }
